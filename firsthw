@@ -1,0 +1,212 @@
+// Jesus Leal
+// 1 day extention, half credit
+
+import UIKit
+
+enum Val: Int {
+    case Ace
+    case Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten
+    case Jack, Queen, King
+    func itsVal () -> Int {
+        switch self {
+        case Ace:
+            return 1
+        case Jack, Queen, King:
+            return 10
+        default:
+            return self.toRaw()
+        }
+    }
+    
+    func description () -> String {
+        switch self {
+        case Ace:
+            return "Ace"
+        case Jack:
+            return "Jack"
+        case Queen:
+            return "Queen"
+        case King:
+            return "King"
+        default:
+            return "\(self.toRaw())"
+        }
+    }
+    
+}
+
+enum Suit {
+    case Diamonds, Clubs, Hearts, Spades
+    func description() -> String{
+        switch self {
+        case Diamonds:
+            return " of Diamonds"
+        case Clubs:
+            return " of Clubs"
+        case Hearts:
+            return " of Hearts"
+        case Spades:
+            return " of Spades"
+        }
+    }
+}
+
+struct Card {
+    var val: Val
+    var suit: Suit
+}
+
+struct Deck{
+    var cards: [Card] = [Card(val: Val.Ace, suit: Suit.Spades),Card(val:Val.Two, suit: .Spades),
+        Card(val: Val.Three, suit: .Spades),Card(val: Val.Four, suit: .Spades),
+        Card(val: Val.Five, suit: .Spades),Card(val: Val.Six, suit: .Spades),
+        Card(val: Val.Seven, suit: .Spades),Card(val: Val.Eight, suit: .Spades),
+        Card(val: Val.Nine, suit: .Spades),Card(val: Val.Ten, suit: .Spades),
+        Card(val: Val.Jack, suit: .Spades),Card(val: Val.Queen, suit: .Spades),
+        Card(val: Val.King, suit: .Spades),Card(val: Val.Ace, suit: .Hearts),
+        Card(val: Val.Two, suit: .Hearts),Card(val: Val.Three, suit: .Hearts),
+        Card(val: Val.Four, suit: .Hearts),Card(val: Val.Five, suit: .Hearts),
+        Card(val: Val.Six, suit: .Hearts),Card(val: Val.Seven, suit: .Hearts),
+        Card(val: Val.Eight, suit: .Hearts),Card(val: Val.Nine, suit: .Hearts),
+        Card(val: Val.Ten, suit: .Hearts),Card(val: Val.Jack, suit: .Hearts),
+        Card(val: Val.Queen, suit: .Hearts),Card(val: Val.King, suit: .Hearts),
+        Card(val: Val.Ace, suit: .Clubs),Card(val: Val.Two, suit: .Clubs),
+        Card(val: Val.Three, suit: .Clubs),Card(val: Val.Four, suit: .Clubs),
+        Card(val: Val.Five, suit: .Clubs),Card(val: Val.Six, suit: .Clubs),
+        Card(val: Val.Seven, suit: .Clubs),Card(val: Val.Eight, suit: .Clubs),
+        Card(val: Val.Nine, suit: .Clubs),Card(val: Val.Ten, suit: .Clubs),
+        Card(val: Val.Jack, suit: .Clubs),Card(val: Val.Queen, suit: .Clubs),
+        Card(val: Val.King, suit: .Clubs),Card(val: Val.Ace, suit: .Diamonds),
+        Card(val: Val.Two, suit: .Diamonds),Card(val: Val.Three, suit: .Diamonds),
+        Card(val: Val.Four, suit: .Diamonds),Card(val: Val.Five, suit: .Diamonds),
+        Card(val: Val.Six, suit: .Diamonds),Card(val: Val.Seven, suit: .Diamonds),
+        Card(val: Val.Eight, suit: .Diamonds),Card(val: Val.Nine, suit: .Diamonds),
+        Card(val: Val.Ten, suit: .Diamonds),Card(val: Val.Jack, suit: .Diamonds),
+        Card(val: Val.Queen, suit: .Diamonds),Card(val: Val.King, suit: .Diamonds)]
+    
+}
+
+class Player{
+    var hand: [Card]
+    var money: Int
+    init () {
+        hand = []
+        money = 100
+    }
+    
+    func play(){ money -= 1}
+    
+    func show() {
+        for card in hand {
+            card.val.description()
+            card.suit.description()
+        }
+    }
+
+}
+
+class Dealer{
+    var hand: [Card]
+    var deck: Deck
+    var shoe: [Card]
+    init () {
+        hand = []
+        deck = Deck()
+        shoe = []
+    }
+    
+    func dealOut() -> Card {
+        var card: Card
+        card = deck.cards.removeAtIndex(random()%deck.cards.count)
+        return card
+    }
+    
+    func play(player: Player) {
+        for i in 0..<2{
+            
+            player.hand += [dealOut()]
+            hand += [dealOut()]
+        }
+        
+    }
+    func cleanHand(player: Player) {
+        shoe.append((player.hand.removeAtIndex(0)))
+        shoe.append((player.hand.removeAtIndex(0)))
+        shoe.append((hand.removeAtIndex(0)))
+        shoe.append((hand.removeAtIndex(0)))
+    }
+    
+    func resetDeck() {
+        for card in shoe {
+            deck.cards += [card]
+        }
+        shoe = []
+    }
+    
+}
+
+
+func handStr(var hand: [Card]) -> Int {
+    var str = 0
+    for card in hand {
+        str += card.val.itsVal()
+    }
+    return str
+}
+
+func whoWins(player: Player,dealer: Dealer){
+    if handStr(player.hand) > 21 {
+        println("hand gone bust")
+    }
+    if handStr(player.hand) > handStr(dealer.hand) {
+        player.money += 1
+        println("Player beats Dealer")
+    }
+    if handStr(player.hand) < handStr(dealer.hand) {
+        println("Dealer wins, too bad")
+    }
+    if handStr(player.hand) == handStr(dealer.hand) {
+        println("Draw")
+        player.money += 1
+    }
+}
+
+
+
+
+
+
+func main() -> Int {
+    var gameCount = 0
+    var aPlayer = Player()
+    var aDealer = Dealer()
+    var inGame = true
+    
+    while inGame {
+        gameCount++
+        aPlayer.play()
+        aDealer.play(aPlayer)
+        whoWins(aPlayer, aDealer)
+        aDealer.cleanHand(aPlayer)
+        
+        if gameCount == 5 {
+            aDealer.resetDeck()
+            gameCount = 0
+        }
+        
+        if aPlayer.money == 0 {
+            println("Oh it seems you ran out of money :/")
+            inGame = false
+        }
+    }
+    
+    return 1
+}
+
+main()
+
+
+
+
+
+
